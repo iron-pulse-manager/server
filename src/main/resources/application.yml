@@ -1,0 +1,191 @@
+spring:
+  application:
+    name: gym-manager-server
+  
+  # 프로파일별 설정
+  profiles:
+    active: local
+  
+  # JPA/Hibernate 설정
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        use_sql_comments: true
+        # Multi-tenant 설정
+        multiTenancy: DISCRIMINATOR
+        tenant_identifier_resolver: com.gymmanager.config.tenant.TenantIdentifierResolver
+        multi_tenant_connection_provider: com.gymmanager.config.tenant.MultiTenantConnectionProvider
+        
+  # 데이터베이스 설정 (기본 - Business별로 동적 변경)
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 300000
+      connection-timeout: 20000
+      leak-detection-threshold: 60000
+      
+  # Redis 캐시 설정
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          
+  # Jackson 설정
+  jackson:
+    time-zone: Asia/Seoul
+    date-format: yyyy-MM-dd HH:mm:ss
+    property-naming-strategy: SNAKE_CASE
+    
+  # 파일 업로드 설정
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+# 서버 설정
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+# Management/Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# 로깅 설정
+logging:
+  level:
+    root: INFO
+    com.gymmanager: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{tenantId}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{tenantId}] %logger{36} - %msg%n"
+
+# JWT 설정
+jwt:
+  secret: gym-manager-jwt-secret-key-2024-very-long-secret-key-for-security
+  expiration: 86400000 # 24시간 (밀리초)
+  refresh-expiration: 604800000 # 7일 (밀리초)
+
+# 파일 저장 설정
+file:
+  upload:
+    path: ./uploads
+    profile-images: ${file.upload.path}/profiles
+    post-images: ${file.upload.path}/posts
+    documents: ${file.upload.path}/documents
+
+---
+# Local 환경 설정
+spring:
+  config:
+    activate:
+      on-profile: local
+      
+  datasource:
+    url: jdbc:mysql://localhost:3306/gym_manager?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+    username: root
+    password: password
+    
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    
+  # 개발 환경 Redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# 로깅 (개발환경)
+logging:
+  level:
+    com.gymmanager: DEBUG
+    org.springframework.security: DEBUG
+
+---
+# Development 환경 설정
+spring:
+  config:
+    activate:
+      on-profile: dev
+      
+  datasource:
+    url: jdbc:mysql://dev-mysql-server:3306/gym_manager?useSSL=true&serverTimezone=Asia/Seoul
+    username: ${DB_USERNAME:gym_manager_dev}
+    password: ${DB_PASSWORD:dev_password}
+    
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST:dev-redis-server}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+---
+# Production 환경 설정
+spring:
+  config:
+    activate:
+      on-profile: prod
+      
+  datasource:
+    url: jdbc:mysql://${DB_HOST:prod-mysql-server}:${DB_PORT:3306}/${DB_NAME:gym_manager}?useSSL=true&serverTimezone=Asia/Seoul
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 50
+      
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+
+# Production 로깅
+logging:
+  level:
+    root: WARN
+    com.gymmanager: INFO
+    org.hibernate.SQL: WARN
