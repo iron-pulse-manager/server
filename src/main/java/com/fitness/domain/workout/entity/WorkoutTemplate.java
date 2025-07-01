@@ -2,7 +2,7 @@ package com.fitness.domain.workout.entity;
 
 import com.fitness.common.BaseEntity;
 import com.fitness.domain.business.entity.Business;
-import com.fitness.domain.employee.entity.BusinessEmployee;
+import com.fitness.domain.business.entity.BusinessEmployee;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,6 +1,6 @@
-package com.fitness.domain.member.repository;
+package com.fitness.domain.user.repository;
 
-import com.fitness.domain.member.entity.Member;
+import com.fitness.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,40 +10,41 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 회원 리포지토리
+ * 사용자 리포지토리
  */
 @Repository
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
     /**
-     * 전화번호로 회원 조회
+     * 전화번호로 사용자 조회
      */
-    Optional<Member> findByPhone(String phone);
+    Optional<User> findByPhoneNumber(String phoneNumber);
 
     /**
-     * 이메일로 회원 조회
+     * 이름으로 사용자 검색 (부분 일치)
      */
-    Optional<Member> findByEmail(String email);
+    List<User> findByNameContaining(String name);
 
     /**
-     * 이름으로 회원 검색 (부분 일치)
+     * 상태별 사용자 조회
      */
-    List<Member> findByNameContaining(String name);
+    List<User> findByStatus(User.UserStatus status);
 
     /**
-     * 상태별 회원 조회
+     * 활성 사용자 수 조회
      */
-    List<Member> findByStatus(Member.MemberStatus status);
+    @Query("SELECT COUNT(u) FROM User u WHERE u.status = :status")
+    long countByStatus(@Param("status") User.UserStatus status);
 
     /**
-     * 활성 회원 수 조회
+     * 전화번호 또는 이름으로 사용자 검색
      */
-    @Query("SELECT COUNT(m) FROM Member m WHERE m.status = :status")
-    long countByStatus(@Param("status") Member.MemberStatus status);
+    @Query("SELECT u FROM User u WHERE u.phoneNumber LIKE %:keyword% OR u.name LIKE %:keyword%")
+    List<User> findByPhoneNumberContainingOrNameContaining(@Param("keyword") String keyword);
 
     /**
-     * 전화번호 또는 이름으로 회원 검색
+     * Auth ID로 사용자 조회
      */
-    @Query("SELECT m FROM Member m WHERE m.phone LIKE %:keyword% OR m.name LIKE %:keyword%")
-    List<Member> findByPhoneContainingOrNameContaining(@Param("keyword") String keyword);
+    @Query("SELECT u FROM User u WHERE u.auth.authId = :authId")
+    Optional<User> findByAuthId(@Param("authId") Long authId);
 }

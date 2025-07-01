@@ -61,7 +61,7 @@ public class WorkoutTemplateExercise extends BaseEntity {
      */
     public String getActualExerciseName() {
         if (exerciseType != null) {
-            return exerciseType.getExerciseName();
+            return exerciseType.getName();
         }
         return customExerciseName;
     }
@@ -71,7 +71,7 @@ public class WorkoutTemplateExercise extends BaseEntity {
      */
     public String getExerciseCategory() {
         if (exerciseType != null) {
-            return exerciseType.getExerciseCategory().getDescription();
+            return exerciseType.getExerciseCategory();
         }
         return "기타";
     }

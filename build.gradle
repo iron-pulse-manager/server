@@ -84,10 +84,7 @@ springBoot {
 }
 
 // Querydsl 설정
-def querydslDir = "$buildDir/generated/querydsl"querydsl {
-    jpa = true
-    querydslSourcesDir = querydslDir
-}
+def querydslDir = "$buildDir/generated/querydsl"
 
 sourceSets {
     main.java.srcDir querydslDir
@@ -97,15 +94,12 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
-    querydsl.extendsFrom compileClasspath
 }
 
-compileQuerydsl {
-    options.annotationProcessorPath = configurations.querydsl
+// Q 클래스 생성 디렉토리 설정
+compileJava {
+    options.generatedSourceOutputDirectory = file(querydslDir)
 }
-
-// Q 클래스 빌드 시 생성
-compileJava.dependsOn compileQuerydsl
 
 // clean 시 Q 클래스 삭제
 clean {

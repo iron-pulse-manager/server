@@ -74,12 +74,12 @@ public class WorkoutSession extends BaseEntity {
 
     public void addReply(WorkoutReply reply) {
         replies.add(reply);
-        reply.setWorkoutSession(this);
+        // WorkoutReply는 WorkoutComment와 연관관계를 가지므로 WorkoutSession과 직접 연관관계 설정 불필요
     }
 
     public void removeReply(WorkoutReply reply) {
         replies.remove(reply);
-        reply.setWorkoutSession(null);
+        // WorkoutReply는 WorkoutComment와 연관관계를 가지므로 WorkoutSession과 직접 연관관계 설정 불필요
     }
 
 }
