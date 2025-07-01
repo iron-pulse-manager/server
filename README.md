@@ -1,236 +1,155 @@
-# Fitness Management System
+# Iron Pulse Manager Server
 
-체육시설업 사업장을 위한 SaaS형 관리 솔루션
+헬스장, 필라테스 등 체육시설업을 위한 SaaS형 관리 시스템
 
-## 🏗️ 아키텍처
+## 📋 프로젝트 개요
 
-- **모듈러 모놀리식 아키텍처**: 도메인별 모듈 분리로 확장성과 유지보수성 확보
-- **Java 17 + Spring Boot 3.2**: 최신 기술 스택 활용
-- **MySQL + Redis**: 안정적인 데이터 저장 및 캐싱
-- **JWT 인증**: 보안성과 확장성을 고려한 토큰 기반 인증
+**Iron Pulse Manager**는 체육시설업 사업장을 대상으로 웹 관리자 시스템과 직원/회원용 모바일 앱을 제공하는 통합 관리 솔루션입니다.
 
-## 📦 모듈 구조
+- **웹**: 사업장 매출관리, 회원관리, 직원관리, 일정관리
+- **직원앱**: 담당 회원 관리, 운동일지 작성, 식단 피드백
+- **회원앱**: 개인 정보 관리, 운동일지 조회, 식단 기록, 체중 관리
 
-```
-fitness/
-├── src/main/java/com/fitness/Application.java  # 메인 애플리케이션
-├── src/main/resources/                         # 설정 파일들
-├── common/                                     # 공통 기능 (인증, 예외처리, 유틸리티)
-├── user/                                       # 사용자(사장님) 관리
-├── member/                                     # 회원 관리
-├── business/                                   # 사업장 관리
-├── employee/                                   # 직원 관리
-├── product/                                    # 상품 관리
-├── payment/                                    # 결제 관리
-├── schedule/                                   # 일정 관리
-├── statistics/                                 # 통계 관리
-└── community/                                  # 커뮤니티 관리
-```
+## 🛠️ 기술 스택
+
+- **Language**: Java 17
+- **Framework**: Spring Boot 3.2
+- **Database**: MySQL 8.0
+- **ORM**: JPA + QueryDSL
+- **Build Tool**: Gradle 8.5
+- **Container**: Docker
 
 ## 🚀 빠른 시작
 
-### 사전 요구사항
-
-- Java 17 이상
-- Docker & Docker Compose
-- Git
-
-### 로컬 환경 셋업
+### 1. 환경 구성
 
 ```bash
 # 저장소 클론
-git clone https://github.com/your-org/fitness-management.git
-cd fitness-management
+git clone https://github.com/iron-pulse-manager/server.git
+cd server
 
-# 로컬 환경 자동 셋업
+# 로컬 환경 설정
 ./scripts/setup-local.sh
 
-# 애플리케이션 실행
-./gradlew bootRun
+# Docker 환경 시작
+docker-compose up -d
 ```
 
-### Docker를 이용한 전체 환경 실행
+### 2. 애플리케이션 실행
 
 ```bash
-# 전체 서비스 시작
-docker-compose up -d
+# 개발 서버 실행
+./gradlew bootRun
 
-# 로그 확인
-docker-compose logs -f app
+# 또는 Docker로 실행
+docker-compose up app
 ```
 
-## 🛠️ 개발 환경
+### 3. 접속 확인
 
-### 필수 도구
+- **애플리케이션**: http://localhost:8080
+- **API 문서**: http://localhost:8080/swagger-ui.html
+- **헬스체크**: http://localhost:8080/actuator/health
 
-- **IDE**: IntelliJ IDEA (권장)
-- **Java**: OpenJDK 17
-- **Build Tool**: Gradle 8.5
-- **Database**: MySQL 8.0
-- **Cache**: Redis 7.0
+## 📁 프로젝트 구조
 
-### 환경 설정
-
-#### application.yml 설정
-```yaml
-spring:
-  profiles:
-    active: local  # local, dev, prod
+```
+src/main/java/com/fitness/
+├── FitnessManagementApplication.java
+├── common/                 # 공통 기능
+│   ├── config/
+│   ├── exception/
+│   └── security/
+└── domain/                # 도메인별 모듈
+    ├── auth/              # 인증
+    ├── business/          # 사업장 관리
+    ├── user/              # 사용자(사장님)
+    ├── employee/          # 직원
+    ├── member/            # 회원
+    ├── product/           # 상품
+    ├── payment/           # 결제
+    ├── schedule/          # 일정
+    ├── statistics/        # 통계
+    ├── community/         # 커뮤니티
+    ├── locker/            # 락커룸
+    ├── daypass/           # 일일권
+    ├── workout/           # 운동일지
+    ├── diet/              # 식단
+    └── message/           # 메시지
 ```
 
-#### 환경별 설정 파일
-- `application-local.yml`: 로컬 개발 환경
-- `application-dev.yml`: 개발 서버 환경  
-- `application-prod.yml`: 운영 환경
+## 🔐 사용자 권한
 
-### 데이터베이스 접속 정보
+| 사용자 유형 | 플랫폼 | 주요 기능 |
+|-------------|--------|-----------|
+| **사장님** | 웹 | 전체 사업장 관리, 매출 통계, 직원/회원 관리 |
+| **직원** | 모바일앱 | 담당 회원 관리, 운동일지 작성, 식단 피드백 |
+| **회원** | 모바일앱 | 개인 정보 조회, 운동 기록, 식단 관리 |
 
-#### 로컬 환경
-- **Host**: localhost:3306
-- **Database**: fitness_db
-- **Username**: fitness_user
-- **Password**: fitness_password
-
-## 🧪 테스트
+## 🧪 테스트 및 빌드
 
 ```bash
 # 전체 테스트 실행
 ./gradlew test
 
-# 특정 모듈 테스트
-./gradlew :user:test
+# 빌드
+./gradlew build
 
-# 테스트 리포트 생성
-./gradlew jacocoTestReport
+# Docker 이미지 빌드
+docker build -t iron-pulse-server:latest .
 ```
 
-## 📚 API 문서
+## ⚙️ 환경 설정
 
-애플리케이션 실행 후 다음 URL에서 API 문서를 확인할 수 있습니다:
-
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **OpenAPI JSON**: http://localhost:8080/v3/api-docs
-
-## 🔐 인증 및 권한
-
-### 사용자 유형
-- **USER**: 사장님 (웹 관리자)
-- **EMPLOYEE**: 직원 (모바일 앱)
-- **MEMBER**: 회원 (모바일 앱)
-
-### API 엔드포인트 구조
-```
-/api/v1/
-├── auth/           # 인증 (공통)
-├── web/            # 웹 관리자 전용
-├── employee/       # 직원앱 전용
-└── member/         # 회원앱 전용
+### 로컬 개발 환경
+```yaml
+# application-local.yml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/fitness_db
+    username: fitness_user
+    password: fitness_password
 ```
 
-## 📊 모니터링
+### 프로파일
+- `local`: 로컬 개발 환경
+- `dev`: 개발 서버 환경
+- `prod`: 운영 환경
 
-### 헬스체크
-- **URL**: http://localhost:8080/actuator/health
-- **상태**: MySQL, Redis 연결 상태 확인
+## 📊 주요 기능
 
-### 메트릭
-- **URL**: http://localhost:8080/actuator/metrics
-- **Prometheus**: http://localhost:8080/actuator/prometheus
+### 웹 관리자
+- **권한별 대시보드**: 마스터/일반 권한 구분
+- **회원 관리**: 이용권 등록, 출석 현황, 결제 내역
+- **직원 관리**: 가입 승인, 실적 조회
+- **상품 관리**: 회원권, 개인레슨권, 락커권 등
+- **통계**: 매출, 회원, 직원 실적 분석
 
-## 🚀 배포
+### 직원 앱
+- **회원 관리**: 담당 회원 목록, 상세 정보
+- **운동일지**: 운동 기록 작성 및 관리
+- **식단 관리**: 회원 식단 피드백
+- **일정 관리**: 개인 레슨 일정
 
-### Docker 이미지 빌드
-```bash
-docker build -t fitness-app:latest .
-```
+### 회원 앱
+- **개인 정보**: 이용권 현황, 출석 기록
+- **운동 기록**: 운동일지 조회, 질문 작성
+- **식단 관리**: 일별 식단 기록
+- **체중 관리**: 목표/현재 체중, 사진 기록
 
-### CI/CD
-GitHub Actions를 통한 자동 빌드 및 테스트:
-- PR 생성 시 자동 테스트 실행
-- main/develop 브랜치 push 시 Docker 이미지 빌드
+## 🔧 개발 가이드
 
-## 🤝 개발 가이드
+### 코딩 규칙
+- Java 17+ 문법 사용
+- Spring Boot 3.2 기반 개발
+- QueryDSL을 활용한 동적 쿼리 작성
+- 도메인 중심 설계 (DDD) 적용
 
-### 코딩 컨벤션
-- **Java**: Google Java Style Guide
-- **Commit**: Conventional Commits
-- **Branch**: Git Flow 전략
+### Git 브랜치 전략
+- `main`: 운영 배포 브랜치
+- `develop`: 개발 통합 브랜치
+- `feature/*`: 기능 개발 브랜치
 
-### 개발 프로세스
-1. Feature 브랜치 생성
-2. 개발 및 테스트 코드 작성
-3. Pull Request 생성
-4. 코드 리뷰 후 Merge
+## 📞 문의
 
-### 모듈 간 통신
-- **인터페이스 기반**: common.interfaces 패키지 활용
-- **이벤트 기반**: Spring Application Events 활용
-
-## 📝 주요 기능
-
-### 웹 관리자 기능
-- 대시보드 및 통계
-- 회원 관리 (등록, 수정, 조회)
-- 직원 관리 및 승인
-- 상품 관리
-- 락커룸 관리
-- 일정 관리
-- 커뮤니티 관리
-
-### 직원앱 기능
-- 담당 회원 관리
-- 운동일지 작성
-- 식단 피드백
-- 개인 일정 관리
-- 실적 조회
-
-### 회원앱 기능
-- 개인 정보 관리
-- 운동일지 조회
-- 식단 기록
-- 체중 관리
-- 레슨 일정 조회
-
-## 🆘 문제 해결
-
-### 자주 발생하는 문제
-
-#### 1. MySQL 연결 실패
-```bash
-# MySQL 컨테이너 상태 확인
-docker-compose ps mysql
-
-# MySQL 로그 확인
-docker-compose logs mysql
-```
-
-#### 2. Redis 연결 실패
-```bash
-# Redis 컨테이너 상태 확인
-docker-compose ps redis
-
-# Redis 연결 테스트
-docker-compose exec redis redis-cli ping
-```
-
-#### 3. 빌드 실패
-```bash
-# Gradle 캐시 정리
-./gradlew clean
-
-# 의존성 새로고침
-./gradlew --refresh-dependencies
-```
-
-## 📄 라이선스
-
-이 프로젝트는 MIT 라이선스 하에 배포됩니다.
-
-## 👥 팀
-
-- **Backend Developer**: 개발자 A, 개발자 B
-- **Architecture**: 시니어 개발자
-
----
-
-💡 **Tip**: 개발 중 문제가 발생하면 GitHub Issues를 통해 문의해주세요.
+프로젝트 관련 문의사항은 GitHub Issues를 통해 등록해주세요.
