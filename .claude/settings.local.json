@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(for module in user member business employee product payment schedule statistics community)",
+      "Bash(do)",
+      "Bash(done)",
+      "Bash(for module in member business employee product payment schedule statistics community)",
+      "Bash(cp:*)",
+      "Bash(chmod:*)",
+      "Bash(mv:*)",
+      "Bash(rm:*)",
+      "Bash(find:*)",
+      "Bash(for module in business product payment schedule attendance locker daypass expense workout diet weight message statistics community)",
+      "Bash(./gradlew:*)",
+      "Bash(ls:*)",
+      "Bash(true)",
+      "Bash(grep:*)",
+      "Bash(sed:*)"
+    ],
+    "deny": []
+  }
+}
