@@ -2,7 +2,7 @@ package com.fitness.domain.workout.entity;
 
 import com.fitness.common.BaseEntity;
 import com.fitness.domain.schedule.entity.LessonSchedule;
-import com.fitness.domain.member.entity.Member;
+import com.fitness.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,7 +33,7 @@ public class WorkoutSession extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    private User member;
 
     @Column(name = "memo", columnDefinition = "TEXT")
     private String memo; // 세션 메모
