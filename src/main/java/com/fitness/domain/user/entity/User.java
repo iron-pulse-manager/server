@@ -1,9 +1,9 @@
 package com.fitness.domain.user.entity;
 
 import com.fitness.common.BaseEntity;
+import com.fitness.common.enums.UserStatus;
+import com.fitness.common.enums.UserType;
 import com.fitness.domain.auth.entity.Auth;
-import com.fitness.domain.business.entity.BusinessEmployee;
-import com.fitness.domain.business.entity.BusinessMember;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 유저(USER) 엔티티
@@ -30,6 +28,9 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long userId;
 
+    @Column(name = "user_type", length = 100, nullable = false, unique = true)
+    private UserType userType;
+
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
@@ -42,7 +43,7 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
-    private UserStatus status;
+    private UserStatus status = UserStatus.ACTIVE;
 
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
@@ -62,85 +63,4 @@ public class User extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auth_id")
     private Auth auth;
-
-    /**
-     * User가 직원으로 속한 사업장들 (1:N)
-     */
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BusinessEmployee> businessEmployees = new ArrayList<>();
-
-    /**
-     * User가 회원으로 속한 사업장들 (1:N)
-     */
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BusinessMember> businessMembers = new ArrayList<>();
-
-    /**
-     * User 생성자
-     */
-    public static User createUser(String name, Auth auth) {
-        User user = new User();
-        user.name = name;
-        user.auth = auth;
-        user.status = UserStatus.ACTIVE;
-        return user;
-    }
-
-    /**
-     * 사용자 정보 업데이트
-     */
-    public void updatePersonalInfo(String name, String phoneNumber, LocalDate birthday, 
-                                 Gender gender, String address) {
-        this.name = name;
-        this.phoneNumber = phoneNumber;
-        this.birthday = birthday;
-        this.gender = gender;
-        this.address = address;
-    }
-
-    /**
-     * 나이 계산 메서드
-     */
-    public Integer getAge() {
-        if (birthday == null) {
-            return null;
-        }
-        return LocalDate.now().getYear() - birthday.getYear();
-    }
-
-    /**
-     * 회원 상태 Enum
-     */
-    public enum UserStatus {
-        ACTIVE("활성"),
-        INACTIVE("비활성");
-
-        private final String description;
-
-        UserStatus(String description) {
-            this.description = description;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-    }
-
-    /**
-     * 성별 Enum
-     */
-    public enum Gender {
-        MALE("남성"),
-        FEMALE("여성");
-
-        private final String description;
-
-        Gender(String description) {
-            this.description = description;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-    }
 }

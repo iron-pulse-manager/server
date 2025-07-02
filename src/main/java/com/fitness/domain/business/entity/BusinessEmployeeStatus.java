@@ -1,9 +1,14 @@
 package com.fitness.domain.business.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 /**
  * 사업장 소속 직원 상태 열거형
  * 데이터베이스 스키마의 status 컬럼 값과 일치
  */
+@Getter
+@AllArgsConstructor
 public enum BusinessEmployeeStatus {
     
     /**
@@ -38,11 +43,4 @@ public enum BusinessEmployeeStatus {
 
     private final String description;
 
-    BusinessEmployeeStatus(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
 }

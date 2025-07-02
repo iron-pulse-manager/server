@@ -43,7 +43,7 @@ public class BusinessMember extends BaseEntity {
     private BusinessMemberStatus status;
 
     @Column(name = "sms_yn", length = 1)
-    private String smsYn = "Y";
+    private boolean smsYn = true;
 
     @Column(name = "memo", columnDefinition = "TEXT")
     private String memo;
@@ -51,65 +51,4 @@ public class BusinessMember extends BaseEntity {
     @Column(name = "join_date", nullable = false)
     private LocalDate joinDate;
 
-    /**
-     * BusinessMember 생성자
-     */
-    public static BusinessMember createBusinessMember(User member, Business business, User employee) {
-        BusinessMember businessMember = new BusinessMember();
-        businessMember.member = member;
-        businessMember.business = business;
-        businessMember.employee = employee;
-        businessMember.status = BusinessMemberStatus.ACTIVE;
-        businessMember.joinDate = LocalDate.now();
-        businessMember.smsYn = "Y";
-        return businessMember;
-    }
-
-    /**
-     * 회원 상태 변경
-     */
-    public void changeStatus(BusinessMemberStatus status) {
-        this.status = status;
-    }
-
-    /**
-     * 담당 직원 변경
-     */
-    public void changeEmployee(User employee) {
-        this.employee = employee;
-    }
-
-    /**
-     * SMS 수신 동의 변경
-     */
-    public void changeSmsConsent(boolean consent) {
-        this.smsYn = consent ? "Y" : "N";
-    }
-
-    /**
-     * SMS 수신 동의 여부 확인
-     */
-    public boolean isSmsConsentEnabled() {
-        return "Y".equals(this.smsYn);
-    }
-
-    /**
-     * 회원 상태 Enum
-     */
-    public enum BusinessMemberStatus {
-        ACTIVE("활성"),
-        EXPIRING_SOON("만료임박"),
-        EXPIRED("만료"),
-        SUSPENDED("정지");
-
-        private final String description;
-
-        BusinessMemberStatus(String description) {
-            this.description = description;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-    }
 }

@@ -1,7 +1,7 @@
 package com.fitness.domain.workout.entity;
 
 import com.fitness.common.BaseEntity;
-import com.fitness.domain.schedule.entity.LessonSchedule;
+import com.fitness.domain.lesson.entity.Lesson;
 import com.fitness.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,7 +29,7 @@ public class WorkoutSession extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_schedule_id")
-    private LessonSchedule lessonSchedule;
+    private Lesson lesson;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
@@ -51,35 +51,5 @@ public class WorkoutSession extends BaseEntity {
     @Builder.Default
     private List<WorkoutReply> replies = new ArrayList<>();
 
-    // 편의 메서드
-    public void addExercise(WorkoutExercise exercise) {
-        exercises.add(exercise);
-        exercise.setWorkoutSession(this);
-    }
-
-    public void removeExercise(WorkoutExercise exercise) {
-        exercises.remove(exercise);
-        exercise.setWorkoutSession(null);
-    }
-
-    public void addComment(WorkoutComment comment) {
-        comments.add(comment);
-        comment.setWorkoutSession(this);
-    }
-
-    public void removeComment(WorkoutComment comment) {
-        comments.remove(comment);
-        comment.setWorkoutSession(null);
-    }
-
-    public void addReply(WorkoutReply reply) {
-        replies.add(reply);
-        // WorkoutReply는 WorkoutComment와 연관관계를 가지므로 WorkoutSession과 직접 연관관계 설정 불필요
-    }
-
-    public void removeReply(WorkoutReply reply) {
-        replies.remove(reply);
-        // WorkoutReply는 WorkoutComment와 연관관계를 가지므로 WorkoutSession과 직접 연관관계 설정 불필요
-    }
 
 }

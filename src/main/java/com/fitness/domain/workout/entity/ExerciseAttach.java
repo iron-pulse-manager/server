@@ -1,6 +1,7 @@
 package com.fitness.domain.workout.entity;
 
 import com.fitness.common.BaseEntity;
+import com.fitness.domain.workout.entity.AttachType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,57 +39,6 @@ public class ExerciseAttach extends BaseEntity {
     private Integer attachOrder = 1; // 첨부파일 순서
 
     @Column(name = "file_size")
-    private Long fileSize; // 파일 사이즈 (byte)
+    private Integer fileSize; // 파일 사이즈 (byte)
 
-    /**
-     * 첨부파일 유형
-     */
-    public enum AttachType {
-        IMAGE("사진"),
-        VIDEO("동영상");
-
-        private final String description;
-
-        AttachType(String description) {
-            this.description = description;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-    }
-
-    /**
-     * 파일 크기를 KB 단위로 반환
-     */
-    public double getFileSizeInKB() {
-        if (fileSize == null) {
-            return 0.0;
-        }
-        return fileSize / 1024.0;
-    }
-
-    /**
-     * 파일 크기를 MB 단위로 반환
-     */
-    public double getFileSizeInMB() {
-        if (fileSize == null) {
-            return 0.0;
-        }
-        return fileSize / (1024.0 * 1024.0);
-    }
-
-    /**
-     * 이미지 파일인지 확인
-     */
-    public boolean isImage() {
-        return AttachType.IMAGE.equals(attachType);
-    }
-
-    /**
-     * 비디오 파일인지 확인
-     */
-    public boolean isVideo() {
-        return AttachType.VIDEO.equals(attachType);
-    }
 }

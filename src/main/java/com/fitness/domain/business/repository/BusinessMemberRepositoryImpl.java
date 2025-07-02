@@ -1,7 +1,7 @@
 package com.fitness.domain.business.repository;
 
 import com.fitness.domain.business.entity.BusinessMember;
-import com.fitness.domain.business.entity.BusinessMember.BusinessMemberStatus;
+import com.fitness.domain.business.entity.BusinessMemberStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;

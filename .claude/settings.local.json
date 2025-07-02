@@ -19,7 +19,9 @@
       "Bash(sed:*)",
       "Bash(git config:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(touch:*)",
+      "Bash(./mvnw compile:*)"
     ],
     "deny": []
   }

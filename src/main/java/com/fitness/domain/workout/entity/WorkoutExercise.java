@@ -51,45 +51,4 @@ public class WorkoutExercise extends BaseEntity {
     @OneToMany(mappedBy = "workoutExercise", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ExerciseAttach> exerciseAttaches = new ArrayList<>();
-
-    // 편의 메서드
-    public void addExerciseSet(ExerciseSets exerciseSet) {
-        exerciseSets.add(exerciseSet);
-        exerciseSet.setWorkoutExercise(this);
-    }
-
-    public void removeExerciseSet(ExerciseSets exerciseSet) {
-        exerciseSets.remove(exerciseSet);
-        exerciseSet.setWorkoutExercise(null);
-    }
-
-    public void addExerciseAttach(ExerciseAttach exerciseAttach) {
-        exerciseAttaches.add(exerciseAttach);
-        exerciseAttach.setWorkoutExercise(this);
-    }
-
-    public void removeExerciseAttach(ExerciseAttach exerciseAttach) {
-        exerciseAttaches.remove(exerciseAttach);
-        exerciseAttach.setWorkoutExercise(null);
-    }
-
-    /**
-     * 실제 운동명을 반환 (표준 운동명 또는 커스텀 운동명)
-     */
-    public String getActualExerciseName() {
-        if (exerciseType != null) {
-            return exerciseType.getName();
-        }
-        return customExerciseName;
-    }
-
-    /**
-     * 운동 카테고리를 반환 (표준 카테고리 또는 커스텀 카테고리)
-     */
-    public String getActualExerciseCategory() {
-        if (exerciseType != null) {
-            return exerciseType.getExerciseCategory();
-        }
-        return "기타";
-    }
 }

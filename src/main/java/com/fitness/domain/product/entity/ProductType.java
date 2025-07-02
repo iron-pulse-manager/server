@@ -1,8 +1,10 @@
 package com.fitness.domain.product.entity;
 
-/**
- * 상품 유형 열거형
- */
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
 public enum ProductType {
     
     /**
@@ -30,33 +32,4 @@ public enum ProductType {
     OTHERS("기타");
 
     private final String description;
-
-    ProductType(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * 기본적으로 기간제를 사용하는 상품 유형인지 확인
-     */
-    public boolean isDefaultPeriodBased() {
-        return this == MEMBERSHIP || this == LOCKER;
-    }
-
-    /**
-     * 기본적으로 횟수제를 사용하는 상품 유형인지 확인
-     */
-    public boolean isDefaultCountBased() {
-        return this == PERSONAL_TRAINING;
-    }
-
-    /**
-     * 기간제와 횟수제 모두 사용 가능한 상품 유형인지 확인
-     */
-    public boolean isFlexibleType() {
-        return this == OTHERS;
-    }
 }

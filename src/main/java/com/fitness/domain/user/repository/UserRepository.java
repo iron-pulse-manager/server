@@ -1,5 +1,6 @@
 package com.fitness.domain.user.repository;
 
+import com.fitness.common.enums.UserStatus;
 import com.fitness.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,13 +29,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * 상태별 사용자 조회
      */
-    List<User> findByStatus(User.UserStatus status);
+    List<User> findByStatus(UserStatus status);
 
     /**
      * 활성 사용자 수 조회
      */
     @Query("SELECT COUNT(u) FROM User u WHERE u.status = :status")
-    long countByStatus(@Param("status") User.UserStatus status);
+    long countByStatus(@Param("status") UserStatus status);
 
     /**
      * 전화번호 또는 이름으로 사용자 검색
