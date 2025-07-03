@@ -17,39 +17,39 @@ import java.util.Optional;
  * 사업장-회원 소속관계 리포지토리
  */
 @Repository
-public interface BusinessMemberRepository extends JpaRepository<BusinessMember, Long>, BusinessMemberRepositoryCustom {
+public interface BusinessMemberRepository extends JpaRepository<BusinessMember, Long> { // TODO: BusinessMemberRepositoryCustom 구현 후 재연결
 
     /**
      * 특정 사업장의 특정 회원 소속 정보 조회
      */
-    Optional<BusinessMember> findByBusinessIdAndMemberId(Long businessId, Long memberId);
+    Optional<BusinessMember> findByBusiness_BusinessIdAndMember_UserId(Long businessId, Long memberId);
 
     /**
      * 특정 사업장의 특정 상태 회원 목록 조회
      */
-    List<BusinessMember> findByBusinessIdAndStatus(Long businessId, BusinessMemberStatus status);
+    List<BusinessMember> findByBusiness_BusinessIdAndStatus(Long businessId, BusinessMemberStatus status);
 
     /**
      * 특정 사업장의 특정 상태 회원 목록 조회 (페이징)
      */
-    Page<BusinessMember> findByBusinessIdAndStatus(Long businessId, BusinessMemberStatus status, Pageable pageable);
+    Page<BusinessMember> findByBusiness_BusinessIdAndStatus(Long businessId, BusinessMemberStatus status, Pageable pageable);
 
     /**
      * 특정 회원의 모든 사업장 소속 정보 조회
      */
-    List<BusinessMember> findByMemberId(Long memberId);
+    List<BusinessMember> findByMember_UserId(Long memberId);
 
     /**
      * 특정 회원의 현재 활성 사업장 소속 정보 조회
      */
-    List<BusinessMember> findByMemberIdAndStatus(Long memberId, BusinessMemberStatus status);
+    List<BusinessMember> findByMember_UserIdAndStatus(Long memberId, BusinessMemberStatus status);
 
     /**
      * 특정 사업장의 활성 회원 목록 조회 (Member 정보 포함)
      */
     @Query("SELECT bm FROM BusinessMember bm " +
            "JOIN FETCH bm.member m " +
-           "WHERE bm.businessId = :businessId " +
+           "WHERE bm.business.businessId = :businessId " +
            "AND bm.status = 'ACTIVE' " +
            "ORDER BY bm.joinDate DESC")
     List<BusinessMember> findActiveMembersByBusinessId(@Param("businessId") Long businessId);
@@ -59,7 +59,7 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
      */
     @Query("SELECT bm FROM BusinessMember bm " +
            "JOIN FETCH bm.member m " +
-           "WHERE bm.businessId = :businessId " +
+           "WHERE bm.business.businessId = :businessId " +
            "AND bm.status = 'ACTIVE'")
     Page<BusinessMember> findActiveMembersByBusinessId(@Param("businessId") Long businessId, Pageable pageable);
 
@@ -68,7 +68,7 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
      */
     @Query("SELECT bm FROM BusinessMember bm " +
            "JOIN FETCH bm.member m " +
-           "WHERE bm.businessId = :businessId " +
+           "WHERE bm.business.businessId = :businessId " +
            "AND bm.status = 'ACTIVE' " +
            "ORDER BY bm.joinDate DESC")
     List<BusinessMember> findExpiringSoonMembersByBusinessId(@Param("businessId") Long businessId);
@@ -78,7 +78,7 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
      */
     @Query("SELECT bm FROM BusinessMember bm " +
            "JOIN FETCH bm.member m " +
-           "WHERE bm.businessId = :businessId " +
+           "WHERE bm.business.businessId = :businessId " +
            "AND bm.status = 'EXPIRED' " +
            "ORDER BY bm.updatedAt DESC")
     List<BusinessMember> findExpiredMembersByBusinessId(@Param("businessId") Long businessId);
@@ -88,9 +88,9 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
      */
     @Query("SELECT bm FROM BusinessMember bm " +
            "JOIN FETCH bm.member m " +
-           "WHERE bm.businessId = :businessId " +
+           "WHERE bm.business.businessId = :businessId " +
            "AND bm.status = :status " +
-           "AND (m.name LIKE %:keyword% OR m.phone LIKE %:keyword% OR bm.memberNumber LIKE %:keyword%)")
+           "AND (m.name LIKE %:keyword% OR m.phoneNumber LIKE %:keyword%)")
     Page<BusinessMember> findByBusinessIdAndStatusAndMemberKeyword(
             @Param("businessId") Long businessId,
             @Param("status") BusinessMemberStatus status,
@@ -102,8 +102,8 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
      */
     @Query("SELECT bm FROM BusinessMember bm " +
            "JOIN FETCH bm.member m " +
-           "WHERE bm.businessId = :businessId " +
-           "AND bm.trainerId = :trainerId " +
+           "WHERE bm.business.businessId = :businessId " +
+           "AND bm.employee.userId = :trainerId " +
            "AND bm.status = 'ACTIVE' " +
            "ORDER BY bm.joinDate DESC")
     List<BusinessMember> findActiveMembersByBusinessIdAndTrainerId(
@@ -113,13 +113,13 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
     /**
      * 특정 트레이너의 담당 회원 수 조회
      */
-    Long countByBusinessIdAndTrainerIdAndStatus(Long businessId, Long trainerId, BusinessMemberStatus status);
+    Long countByBusiness_BusinessIdAndEmployee_UserIdAndStatus(Long businessId, Long trainerId, BusinessMemberStatus status);
 
     /**
      * 특정 기간에 가입한 회원 수 조회
      */
     @Query("SELECT COUNT(bm) FROM BusinessMember bm " +
-           "WHERE bm.businessId = :businessId " +
+           "WHERE bm.business.businessId = :businessId " +
            "AND bm.status = 'ACTIVE' " +
            "AND bm.joinDate BETWEEN :startDate AND :endDate")
     Long countNewMembersByBusinessIdAndPeriod(@Param("businessId") Long businessId,
@@ -129,23 +129,23 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
     /**
      * 특정 사업장의 상태별 회원 수 조회
      */
-    Long countByBusinessIdAndStatus(Long businessId, BusinessMemberStatus status);
+    Long countByBusiness_BusinessIdAndStatus(Long businessId, BusinessMemberStatus status);
 
     /**
      * 특정 사업장의 전체 회원 수 조회
      */
-    Long countByBusinessId(Long businessId);
+    Long countByBusiness_BusinessId(Long businessId);
 
     /**
      * 회원이 특정 사업장에 이미 등록되어 있는지 확인
      */
-    boolean existsByBusinessIdAndMemberId(Long businessId, Long memberId);
+    boolean existsByBusiness_BusinessIdAndMember_UserId(Long businessId, Long memberId);
 
     /**
      * 특정 회원의 현재 활성 사업장 조회
      */
     @Query("SELECT bm FROM BusinessMember bm " +
-           "WHERE bm.memberId = :memberId " +
+           "WHERE bm.member.userId = :memberId " +
            "AND bm.status = 'ACTIVE'")
     List<BusinessMember> findCurrentBusinessesByMemberId(@Param("memberId") Long memberId);
 
@@ -156,7 +156,7 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
            "EXTRACT(MONTH FROM bm.joinDate) as month, " +
            "COUNT(bm) as count " +
            "FROM BusinessMember bm " +
-           "WHERE bm.businessId = :businessId " +
+           "WHERE bm.business.businessId = :businessId " +
            "AND bm.status = 'ACTIVE' " +
            "AND bm.joinDate >= :startDate " +
            "GROUP BY EXTRACT(YEAR FROM bm.joinDate), EXTRACT(MONTH FROM bm.joinDate) " +
@@ -169,30 +169,31 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
      */
     @Query("SELECT bm FROM BusinessMember bm " +
            "JOIN FETCH bm.member m " +
-           "WHERE bm.businessId = :businessId " +
+           "WHERE bm.business.businessId = :businessId " +
            "AND bm.status = 'ACTIVE' " +
-           "AND bm.smsConsent = true")
+           "AND bm.smsYn = true")
     List<BusinessMember> findSmsConsentMembersByBusinessId(@Param("businessId") Long businessId);
 
     /**
      * 특정 기간 동안 방문하지 않은 회원 조회
+     * TODO: lastVisitDate 필드가 없어서 임시로 주석 처리
      */
-    @Query("SELECT bm FROM BusinessMember bm " +
-           "JOIN FETCH bm.member m " +
-           "WHERE bm.businessId = :businessId " +
-           "AND bm.status = 'ACTIVE' " +
-           "AND (bm.lastVisitDate IS NULL OR bm.lastVisitDate < :date)")
-    List<BusinessMember> findInactiveMembersByBusinessId(@Param("businessId") Long businessId, 
-                                                        @Param("date") LocalDate date);
+    // @Query("SELECT bm FROM BusinessMember bm " +
+    //        "JOIN FETCH bm.member m " +
+    //        "WHERE bm.business.businessId = :businessId " +
+    //        "AND bm.status = 'ACTIVE' " +
+    //        "AND (bm.lastVisitDate IS NULL OR bm.lastVisitDate < :date)")
+    // List<BusinessMember> findInactiveMembersByBusinessId(@Param("businessId") Long businessId, 
+    //                                                     @Param("date") LocalDate date);
 
     /**
      * 개인레슨 회원 목록 조회 (트레이너가 배정된 회원)
      */
     @Query("SELECT bm FROM BusinessMember bm " +
            "JOIN FETCH bm.member m " +
-           "WHERE bm.businessId = :businessId " +
+           "WHERE bm.business.businessId = :businessId " +
            "AND bm.status = 'ACTIVE' " +
-           "AND bm.trainerId IS NOT NULL")
+           "AND bm.employee IS NOT NULL")
     List<BusinessMember> findPersonalTrainingMembersByBusinessId(@Param("businessId") Long businessId);
 
     /**
@@ -200,8 +201,8 @@ public interface BusinessMemberRepository extends JpaRepository<BusinessMember, 
      */
     @Query("SELECT bm FROM BusinessMember bm " +
            "JOIN FETCH bm.member m " +
-           "WHERE bm.businessId = :businessId " +
+           "WHERE bm.business.businessId = :businessId " +
            "AND bm.status = 'ACTIVE' " +
-           "AND bm.trainerId IS NULL")
+           "AND bm.employee IS NULL")
     List<BusinessMember> findGeneralMembersByBusinessId(@Param("businessId") Long businessId);
 }

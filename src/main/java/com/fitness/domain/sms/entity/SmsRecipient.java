@@ -32,7 +32,7 @@ public class SmsRecipient extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_user_id")
-    private User recipientUserId;
+    private User recipientUser;
 
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;

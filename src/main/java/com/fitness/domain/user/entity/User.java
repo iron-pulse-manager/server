@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 유저(USER) 엔티티
@@ -28,7 +30,8 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "user_type", length = 100, nullable = false, unique = true)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_type", length = 100, nullable = false)
     private UserType userType;
 
     @Column(name = "name", length = 100, nullable = false)
@@ -58,9 +61,9 @@ public class User extends BaseEntity {
     private String address;
 
     /**
-     * User와 Auth는 1:1 관계
+     * User와 Auth는 1:N 관계 (1사용자 : N인증방식)
+     * 사용자 1명이 일반로그인 + 여러 소셜로그인을 가질 수 있음
      */
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "auth_id")
-    private Auth auth;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Auth> authList = new ArrayList<>();
 }

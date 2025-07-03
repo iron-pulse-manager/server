@@ -29,7 +29,7 @@ public class WorkoutReply extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id", nullable = false)
-    private User writerId; // 작성자 ID
+    private User writer; // 작성자
 
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;

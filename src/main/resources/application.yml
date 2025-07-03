@@ -31,16 +31,6 @@ spring:
       idle-timeout: 300000
       max-lifetime: 1200000
       
-  # Redis 설정
-  data:
-    redis:
-      timeout: 2000ms
-      lettuce:
-        pool:
-          max-active: 8
-          max-idle: 8
-          min-idle: 0
-          
   # 파일 업로드 설정
   servlet:
     multipart:

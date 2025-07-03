@@ -14,10 +14,13 @@
 
 - **Language**: Java 17
 - **Framework**: Spring Boot 3.2
-- **Database**: MySQL 8.0
+- **Security**: Spring Security + JWT
+- **Database**: MySQL 8.0 / H2 (테스트)
 - **ORM**: JPA + QueryDSL
 - **Build Tool**: Gradle 8.5
-- **Container**: Docker
+- **Authentication**: 
+  - 일반 로그인 (사장님): ID/Password + BCrypt
+  - 소셜 로그인 (직원/회원): 카카오/애플 OAuth2
 
 ## 🚀 빠른 시작
 
@@ -40,9 +43,6 @@ docker-compose up -d
 ```bash
 # 개발 서버 실행
 ./gradlew bootRun
-
-# 또는 Docker로 실행
-docker-compose up app
 ```
 
 ### 3. 접속 확인
@@ -82,16 +82,50 @@ src/main/java/com/fitness/
     └── notification/      # 알림
 ```
 
-## 🔐 사용자 권한
+## 🔐 사용자 권한 및 인증 시스템
 
 ### 통합 사용자 관리
 모든 사용자(사장님, 직원, 회원)는 **User** 엔티티로 통합 관리되며, 사업장별 역할은 **BusinessEmployee**, **BusinessMember** 관계 엔티티로 구분됩니다.
 
-| 사용자 유형 | 플랫폼 | 주요 기능 | 관계 엔티티 |
-|-------------|--------|-----------|-------------|
-| **사장님** | 웹 | 전체 사업장 관리, 매출 통계, 직원/회원 관리 | Business 소유자 |
-| **직원** | 모바일앱 | 담당 회원 관리, 운동일지 작성, 식단 피드백 | BusinessEmployee |
-| **회원** | 모바일앱 | 개인 정보 조회, 운동 기록, 식단 관리 | BusinessMember |
+| 사용자 유형 | 플랫폼 | 인증 방식 | 주요 기능 | 관계 엔티티 |
+|-------------|--------|-----------|-----------| -------------|
+| **사장님** | 웹 | 일반 로그인 (ID/PW) | 전체 사업장 관리, 매출 통계, 직원/회원 관리 | Business 소유자 |
+| **직원** | 모바일앱 | 소셜 로그인 (카카오/애플) | 담당 회원 관리, 운동일지 작성, 식단 피드백 | BusinessEmployee |
+| **회원** | 모바일앱 | 소셜 로그인 (카카오/애플) | 개인 정보 조회, 운동 기록, 식단 관리 | BusinessMember |
+
+### 인증 시스템 구조
+
+#### User ↔ Auth 관계 (1:N)
+```java
+User (1) ←→ (N) Auth
+```
+- **1명의 사용자**가 **여러 인증 방식**을 가질 수 있음
+- 사장님: 일반 로그인 1개
+- 직원/회원: 카카오 + 애플 등 복수 소셜 로그인 가능
+
+#### Auth 엔티티 구조
+```java
+@Entity
+public class Auth {
+    private Long authId;
+    private SocialProvider provider;  // NONE, KAKAO, APPLE
+    private String username;          // 일반 로그인용 (사장님)
+    private String password;          // 일반 로그인용 (사장님)
+    private String socialId;          // 소셜 고유 ID (직원/회원)
+    private String email;             // 소셜에서 받은 이메일
+    private String nickname;          // 소셜에서 받은 닉네임
+    private String accessToken;       // 소셜 액세스 토큰
+    private String refreshToken;      // 소셜 리프레시 토큰
+}
+```
+
+#### 인증 엔드포인트
+```
+POST /api/auth/login                    # 일반 로그인 (사장님)
+POST /api/auth/social/kakao             # 카카오 로그인 (직원/회원)
+POST /api/auth/social/apple             # 애플 로그인 (직원/회원)
+POST /api/auth/social/{provider}/link   # 소셜 계정 연동 추가
+```
 
 ## 🧪 테스트 및 빌드
 
@@ -101,27 +135,51 @@ src/main/java/com/fitness/
 
 # 빌드
 ./gradlew build
-
-# Docker 이미지 빌드
-docker build -t iron-pulse-server:latest .
 ```
 
 ## ⚙️ 환경 설정
 
-### 로컬 개발 환경
+### 데이터베이스 환경별 설정
+
+#### 테스트 환경 (application-test.yml)
 ```yaml
-# application-local.yml
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/fitness_db
-    username: fitness_user
-    password: fitness_password
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+```
+
+#### 로컬 개발 환경 (application-local.yml)
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/fitness_db?createDatabaseIfNotExist=true
+    username: root
+    password: 1234
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+```
+
+#### 프로덕션 환경 (application-prod.yml)
+```yaml
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
 ```
 
 ### 프로파일
-- `local`: 로컬 개발 환경
-- `dev`: 개발 서버 환경
-- `prod`: 운영 환경
+- `test`: 테스트 환경 (H2 메모리 DB)
+- `local`: 로컬 개발 환경 (로컬 MySQL)
+- `prod`: 운영 환경 (AWS RDS)
 
 ## 📊 주요 기능
 

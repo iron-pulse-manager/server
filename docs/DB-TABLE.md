@@ -1,21 +1,16 @@
 # 테이블 설계
-## 계정 (AUTH)
 
-- AUTH_ID : 계정 ID (PK)
-- USERNAME : 로그인 ID
-- PASSWORD : 로그인 PW
-- KAKAO_ID : 카카오톡 로그인 ID
-- APPLE_ID : 애플 로그인 ID
-- CREATED_AT : 생성일자
-- CREATED_BY : 생성자 ID
-- UPDATED_AT : 수정일자
-- UPDATED_BY : 수정자 ID
-- DELETED_AT : 삭제일자
-- DELETED_BY : 삭제자 ID
+## 인증 시스템 구조
+
+### User ↔ Auth 관계 (1:N)
+- **1명의 사용자**가 **여러 인증 방식**을 가질 수 있음
+- 사장님: 일반 로그인 1개 (provider = NONE)
+- 직원/회원: 카카오 + 애플 등 복수 소셜 로그인 (provider = KAKAO, APPLE)
 
 ## 유저 (USER)
 
 - USER_ID : 유저 ID (PK)
+- USER_TYPE : 사용자 유형 (OWNER, EMPLOYEE, MEMBER)
 - NAME : 이름
 - BIRTHDAY : 생년월일
 - GENDER : 성별
@@ -24,13 +19,56 @@
 - CI : CI값
 - PHOTO_URL : 프로필 사진
 - ADDRESS : 자택주소
-- AUTH_ID : 계정 ID
 - CREATED_AT : 생성일자
 - CREATED_BY : 생성자 ID
 - UPDATED_AT : 수정일자
 - UPDATED_BY : 수정자 ID
 - DELETED_AT : 삭제일자
 - DELETED_BY : 삭제자 ID
+
+## 계정 (AUTH) - N:1 관계
+
+- AUTH_ID : 계정 ID (PK)
+- USER_ID : 사용자 ID (FK) - User 테이블 참조
+- PROVIDER : 소셜 로그인 제공자 (NONE, KAKAO, APPLE)
+- USERNAME : 로그인 ID (일반 로그인용 - 사장님)
+- PASSWORD : 로그인 PW (일반 로그인용 - 사장님)
+- SOCIAL_ID : 소셜 고유 ID (카카오/애플 ID)
+- EMAIL : 소셜에서 받은 이메일
+- NICKNAME : 소셜에서 받은 닉네임
+- ACCESS_TOKEN : 소셜 액세스 토큰
+- REFRESH_TOKEN : 소셜 리프레시 토큰
+- CREATED_AT : 생성일자
+- CREATED_BY : 생성자 ID
+- UPDATED_AT : 수정일자
+- UPDATED_BY : 수정자 ID
+- DELETED_AT : 삭제일자
+- DELETED_BY : 삭제자 ID
+
+### 인증 방식별 데이터 예시
+
+#### 사장님 (일반 로그인)
+```
+USER_ID: 1, PROVIDER: NONE
+USERNAME: "admin@example.com", PASSWORD: "$2a$10$..."
+SOCIAL_ID: NULL, EMAIL: NULL, ACCESS_TOKEN: NULL
+```
+
+#### 직원/회원 (카카오 로그인)
+```
+USER_ID: 2, PROVIDER: KAKAO
+USERNAME: NULL, PASSWORD: NULL
+SOCIAL_ID: "123456789", EMAIL: "user@kakao.com"
+ACCESS_TOKEN: "kakao_access_token...", REFRESH_TOKEN: "kakao_refresh..."
+```
+
+#### 직원/회원 (애플 로그인)
+```
+USER_ID: 2, PROVIDER: APPLE
+USERNAME: NULL, PASSWORD: NULL
+SOCIAL_ID: "apple.user.id", EMAIL: "user@apple.com"
+ACCESS_TOKEN: "apple_access_token...", REFRESH_TOKEN: "apple_refresh..."
+```
 
 ## 사업장 (BUSINESS)
 

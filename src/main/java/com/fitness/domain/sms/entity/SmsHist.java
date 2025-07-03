@@ -48,7 +48,7 @@ public class SmsHist extends BaseEntity {
     @Column(name = "sent_date")
     private LocalDateTime sentDate;
 
-    @OneToMany(mappedBy = "smsHistory", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "smsHist", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SmsRecipient> recipients = new ArrayList<>();
 
 }

@@ -1,23 +1,30 @@
-# 프로덕션 환경 설정
+# 프로덕션 환경 설정 (AWS RDS 사용)
 spring:
-  # 데이터베이스 설정
+  # 데이터베이스 설정 - AWS RDS MySQL
   datasource:
     url: ${DATABASE_URL}
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      max-lifetime: 1200000
     
   # JPA 설정
   jpa:
     hibernate:
       ddl-auto: validate # 프로덕션에서는 스키마 검증만
     show-sql: false
-    
-  # Redis 설정
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        jdbc:
+          batch_size: 20
+          order_inserts: true
+          order_updates: true
+    open-in-view: false
       
 # JWT 설정 (프로덕션용)
 jwt:

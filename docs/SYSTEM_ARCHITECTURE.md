@@ -144,62 +144,64 @@
 
 ### **1. 사용자 관리 도메인**
 
-#### **Owner (사장님)**
+#### **User (통합 사용자)**
 ```java
 @Entity
-public class Owner {
+public class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @Column(unique = true, nullable = false)
-    private String username;        // 로그인 ID
-    
-    @Column(nullable = false)
-    private String password;        // 암호화된 비밀번호
+    private Long userId;
     
     @Enumerated(EnumType.STRING)
-    private OwnerStatus status;     // ACTIVE, INACTIVE
+    private UserType userType;      // OWNER, EMPLOYEE, MEMBER
+    
+    private String name;
+    private LocalDate birthday;
+    private Gender gender;
+    private UserStatus status;      // ACTIVE, INACTIVE
+    private String phoneNumber;
+    private String address;
+    
+    // 1:N 관계 - 사용자별 인증 방식들
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Auth> authList = new ArrayList<>();
     
     // 비즈니스 메서드
-    public void changePassword(String newPassword);
-    public boolean isActive();
+    public boolean isOwner();
+    public boolean isEmployee();
+    public boolean isMember();
 }
 ```
 
-#### **Employee (직원)**
+#### **Auth (인증 정보)**
 ```java
 @Entity
-public class Employee {
+public class Auth {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long authId;
     
-    private Long businessId;        // 소속 사업장
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
     
     @Enumerated(EnumType.STRING)
-    private EmployeeStatus status;  // PENDING, NORMAL, LEAVE, RESIGNED, REJECTED
+    private SocialProvider provider;  // NONE, KAKAO, APPLE
+    
+    // 일반 로그인용 (사장님)
+    private String username;
+    private String password;
+    
+    // 소셜 로그인용 (직원/회원)
+    private String socialId;
+    private String email;
+    private String nickname;
+    private String accessToken;
+    private String refreshToken;
     
     // 비즈니스 메서드
-    public void approve(Long businessId);
-    public void reject(String reason);
-    public boolean canManageMember();
-}
-```
-
-#### **Member (회원)**
-```java
-@Entity
-public class Member {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    private String kakaoId;         // 카카오 OAuth ID
-    private String appleId;         // 애플 OAuth ID
-    private Long trainerId;         // 담당 트레이너
-    
-    // 비즈니스 메서드
-    public void assignTrainer(Long trainerId);
-    public void removeTrainer();
-    public boolean hasValidMembership(Long businessId);
+    public boolean isRegularAuth();
+    public boolean isSocialAuth();
+    public boolean isKakaoAuth();
+    public boolean isAppleAuth();
 }
 ```
 
@@ -295,12 +297,22 @@ CREATE INDEX idx_payments_trainer_date ON payments(trainer_id, payment_date);
 
 ## 🔐 보안 및 인증
 
+### **통합 인증 시스템 구조**
+
+#### **User ↔ Auth 관계 (1:N)**
+```java
+User (1) ← → (N) Auth
+```
+- **1명의 사용자**가 **여러 인증 방식**을 가질 수 있음
+- 사장님: 일반 로그인 1개 (provider = NONE)
+- 직원/회원: 카카오 + 애플 등 복수 소셜 로그인 (provider = KAKAO, APPLE)
+
 ### **인증 체계**
 | 사용자 타입 | 인증 방식 | 토큰 유효기간 | 권한 관리 |
 |-------------|-----------|---------------|-----------|
 | **사장님** | ID/PW + JWT | 8시간 | Role-based |
-| **직원** | ID/PW + JWT | 8시간 | Business-scoped |
-| **회원** | OAuth (카카오/애플) | 30일 | Member-scoped |
+| **직원** | 소셜 로그인 (카카오/애플) + JWT | 30일 | Business-scoped |
+| **회원** | 소셜 로그인 (카카오/애플) + JWT | 30일 | Member-scoped |
 
 ### **보안 정책**
 1. **비밀번호**: BCrypt 해싱, 최소 8자리
@@ -472,11 +484,11 @@ management:
 
 ### **Backend**
 - **언어**: Java 17
-- **프레임워크**: Spring Boot 3.x, Spring Security, Spring Data JPA
+- **프레임워크**: Spring Boot 3.2, Spring Security + JWT, Spring Data JPA
 - **빌드 도구**: Gradle
-- **데이터베이스**: MySQL 8.0
-- **캐시**: Redis
-- **메시지 큐**: RabbitMQ
+- **데이터베이스**: MySQL 8.0 / H2 (테스트)
+- **인증**: BCryptPasswordEncoder + JWT + OAuth2
+- **쿼리**: QueryDSL (동적 쿼리)
 
 ### **Infrastructure**
 - **컨테이너**: Docker, Kubernetes

@@ -47,9 +47,5 @@ public class WorkoutSession extends BaseEntity {
     @Builder.Default
     private List<WorkoutComment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "workoutSession", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<WorkoutReply> replies = new ArrayList<>();
-
 
 }

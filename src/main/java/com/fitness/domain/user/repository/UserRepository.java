@@ -44,8 +44,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByPhoneNumberContainingOrNameContaining(@Param("keyword") String keyword);
 
     /**
-     * Auth ID로 사용자 조회
+     * Auth ID로 사용자 조회 (1:N 관계로 변경)
      */
-    @Query("SELECT u FROM User u WHERE u.auth.authId = :authId")
+    @Query("SELECT u FROM User u JOIN u.authList a WHERE a.authId = :authId")
     Optional<User> findByAuthId(@Param("authId") Long authId);
 }
