@@ -55,4 +55,31 @@ public class Auth extends BaseEntity {
     @Column(name = "refresh_token", columnDefinition = "TEXT")
     private String refreshToken;
 
+    /**
+     * 소셜 로그인용 Auth 생성
+     */
+    public static Auth createSocialAuth(User user, SocialProvider provider, String socialId, 
+                                       String email, String nickname, String username) {
+        Auth auth = new Auth();
+        auth.user = user;
+        auth.provider = provider;
+        auth.socialId = socialId;
+        auth.email = email;
+        auth.nickname = nickname;
+        auth.username = username;
+        return auth;
+    }
+
+    /**
+     * 일반 로그인용 Auth 생성
+     */
+    public static Auth createGeneralAuth(User user, String username, String password, String email) {
+        Auth auth = new Auth();
+        auth.user = user;
+        auth.provider = SocialProvider.NONE;
+        auth.username = username;
+        auth.password = password;
+        auth.email = email;
+        return auth;
+    }
 }

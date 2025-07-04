@@ -1,6 +1,7 @@
 package com.fitness.domain.user.entity;
 
 import com.fitness.common.BaseEntity;
+import com.fitness.common.enums.Gender;
 import com.fitness.common.enums.UserStatus;
 import com.fitness.common.enums.UserType;
 import com.fitness.domain.auth.entity.Auth;
@@ -66,4 +67,28 @@ public class User extends BaseEntity {
      */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Auth> authList = new ArrayList<>();
+
+    /**
+     * 소셜 로그인용 User 생성
+     */
+    public static User createSocialUser(UserType userType, String name, String photoUrl) {
+        User user = new User();
+        user.userType = userType;
+        user.name = name;
+        user.photoUrl = photoUrl;
+        user.status = UserStatus.ACTIVE;
+        return user;
+    }
+
+    /**
+     * 일반 로그인용 User 생성 (OWNER용)
+     */
+    public static User createGeneralUser(String name, String phoneNumber, String email) {
+        User user = new User();
+        user.userType = UserType.OWNER;
+        user.name = name;
+        user.phoneNumber = phoneNumber;
+        user.status = UserStatus.ACTIVE;
+        return user;
+    }
 }

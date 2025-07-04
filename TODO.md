@@ -1,67 +1,87 @@
-# Spring Security + JWT 인증 시스템 구현 TODO
+# 피트니스 관리 시스템 개발 TODO
 
-## 현재 진행 상황
-- **진행 중**: JWT 토큰 관련 유틸리티 클래스들 구현
-- **완료된 작업**: application.yml에 JWT 설정 추가 (access-token-expiration: 15분, refresh-token-expiration: 7일)
+## 현재 완료된 기능
+✅ Spring Security + JWT 인증 시스템 완료
+✅ 소셜 로그인 (카카오/애플) 구현 완료  
+✅ 권한별 API 접근 제어 완료 (OWNER/EMPLOYEE/MEMBER)
+✅ 토큰 갱신 기능 완료
 
-## 다음 작업 리스트
+---
 
-### 🔥 High Priority (먼저 완료해야 함)
-1. **[진행 중] JWT 토큰 관련 유틸리티 클래스들 구현**
-   - [ ] JwtProperties 설정 클래스 생성
-   - [ ] JwtTokenProvider 클래스 구현 (토큰 생성, 검증, 파싱)
-   - [ ] JwtTokenFilter 클래스 구현 (HTTP 요청 토큰 추출 및 인증)
+## 🚀 실제 API 개발 전 필수 작업사항
 
-2. **Spring Security 설정 클래스 구현**
-   - [ ] SecurityConfig 클래스 구현
-   - [ ] JWT 필터 등록 및 설정
+### 1. 인증/회원가입 시스템 완성
+- [ ] **일반 회원가입 API 구현** (OWNER용 - username/password)
+- [ ] **소셜 회원가입 API 분리** (현재는 로그인과 회원가입이 혼재)
+- [ ] **회원가입 시 토큰 발급 및 응답** 처리
+- [ ] **OWNER 초기 계정 생성** (테스트 및 운영용)
 
-3. **UserDetailsService 구현**
-   - [ ] CustomUserDetailsService 클래스 구현
-   - [ ] Auth 엔티티 기반 사용자 정보 로드
+### 2. 데이터베이스 스키마 최종 검증
+- [ ] **엔티티 관계 검증** (User ↔ Auth 1:N 관계 확인)
+- [ ] **누락된 엔티티 구현** (Business, BusinessEmployee, BusinessMember 등)
+- [ ] **Auditing 설정 완료** (created_by, updated_by 자동 설정)
+- [ ] **인덱스 최적화** (검색 성능 향상)
 
-4. **토큰 갱신 기능 구현**
-   - [ ] Refresh Token으로 Access Token 갱신 로직
-   - [ ] 기존 Refresh Token 무효화 처리
+### 3. 공통 인프라 구축
+- [ ] **BaseEntity 최종 정리** (공통 필드 표준화)
+- [ ] **공통 응답 DTO 설계** (ApiResponse, ErrorResponse)
+- [ ] **예외 처리 체계 구축** (GlobalExceptionHandler)
+- [ ] **Validation 어노테이션 적용** (Bean Validation)
 
-5. **리프레시 토큰 만료 시 로그아웃 처리**
-   - [ ] 만료 감지 및 자동 로그아웃 로직
-   - [ ] 모든 토큰 무효화 처리
+### 4. 설정 및 환경 구성
+- [ ] **프로파일별 설정 분리** (local, dev, prod)
+- [ ] **로깅 설정 최적화** (Logback 설정)
+- [ ] **API 문서화 설정** (Swagger/OpenAPI 완성)
+- [ ] **테스트 환경 구축** (TestContainers, 테스트 데이터)
 
-### 🔶 Medium Priority
-6. **인증 관련 DTO 클래스들 구현**
-   - [ ] 로그인 요청/응답 DTO
-   - [ ] 회원가입 요청/응답 DTO
-   - [ ] 토큰 갱신 요청/응답 DTO
+### 5. 코드 품질 및 규칙
+- [ ] **코딩 컨벤션 정리** (네이밍, 패키지 구조)
+- [ ] **DTO 변환 전략 수립** (MapStruct vs ModelMapper)
+- [ ] **서비스 레이어 설계 패턴 정의**
+- [ ] **트랜잭션 관리 전략 수립**
 
-7. **인증 관련 서비스 클래스 구현**
-   - [ ] AuthService 클래스 구현
-   - [ ] 일반 로그인/소셜 로그인 처리 로직
+---
 
-8. **인증 관련 컨트롤러 구현**
-   - [ ] AuthController 클래스 구현
-   - [ ] 로그인/회원가입/토큰갱신 API 엔드포인트
+## 🎯 API 개발 우선순위 (인프라 완성 후)
 
-### 🔹 Low Priority
-9. **예외 처리 클래스들 구현**
-   - [ ] CustomAuthenticationException 등 커스텀 예외
-   - [ ] 글로벌 예외 처리기
+### Phase 1: 핵심 도메인
+1. **사업장 관리 API**
+2. **사용자 관리 API** (회원/직원/사장)
+3. **권한 및 역할 관리 API**
 
-10. **통합 테스트 작성 및 검증**
-    - [ ] 인증 시스템 전체 테스트
-    - [ ] 토큰 갱신 시나리오 테스트
+### Phase 2: 비즈니스 로직
+1. **회원권 관리 API**
+2. **결제 관리 API**
+3. **출석 관리 API**
 
-11. **인증 시스템 가이드 문서 작성**
-    - [ ] 일반 로그인/소셜 로그인 방식 설명
-    - [ ] API 사용법 가이드
+### Phase 3: 부가 기능
+1. **통계 및 대시보드 API**
+2. **알림 시스템 API**
+3. **커뮤니티 기능 API**
 
-## 중요한 설계 결정사항
-- **일반 로그인 (사장님)**: username + password 인증
-- **소셜 로그인 (직원/회원)**: JWT 토큰 기반 인증만 사용
-- **토큰 만료 시간**: Access Token 15분, Refresh Token 7일
-- **토큰 갱신**: Refresh Token으로 새로운 토큰 쌍 발급
-- **보안**: 토큰 갱신 시 기존 Refresh Token 무효화
+---
 
-## 다음 작업 시작점
-1. JwtProperties 설정 클래스 생성부터 시작
-2. 위치: `src/main/java/com/fitness/config/JwtProperties.java`
+## ⚠️ 중요 고려사항
+
+### 보안
+- JWT 토큰 블랙리스트 구현 (Redis)
+- 비밀번호 암호화 정책 수립
+- API Rate Limiting 적용
+
+### 성능
+- 데이터베이스 커넥션 풀 최적화
+- 캐싱 전략 수립 (Redis)
+- 페이징 처리 표준화
+
+### 운영
+- 헬스체크 엔드포인트 구현
+- 모니터링 및 메트릭 설정
+- 로그 수집 및 분석 체계
+
+---
+
+## 📝 참고사항
+- 모든 API는 RESTful 설계 원칙 준수
+- 에러 응답은 일관된 형식으로 표준화
+- 민감한 정보는 환경변수로 관리
+- 테스트 코드는 각 기능과 함께 작성
